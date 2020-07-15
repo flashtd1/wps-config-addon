@@ -1,7 +1,7 @@
 <template>
   <div class="global">
         <div class="divItem">
-            这是一个网页，按<span style="font-weight: bolder;">"F12"</span>可以打开调试器。
+            这是一个网页，按<span style="font-weight: bolder;">"F12"</span>可以111sdfsdf
         </div>
         <div class="divItem">
             这个示例展示了wps加载项的相关基础能力，与B/S业务系统的交互，请用浏览器打开：
