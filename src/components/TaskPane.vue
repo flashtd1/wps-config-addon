@@ -3,8 +3,12 @@
     el-card.header
       .clearfix(slot='header')
         span 表头内容
-        el-button(style='float: right; padding: 3px 0', type='text' @click="onAdd(1)") add
-      el-row(v-for='item in theader', :key='item' :gutter='2')
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(1)") addRangeInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(1,false)") addRangeInBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(1)") addInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(1,false)") addBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onClean(1)") Clean
+      el-row(v-for='(item, index) in theader', :key='index' :gutter='2')
         el-col(:span='2')
           div.el-icon-location-outline(@click="onPosition(item.address)" style="margin-top:30px")
         el-col(:span='8')
@@ -19,14 +23,18 @@
         el-col(:span='4')
           div 数据类型
             el-select(v-model='item.type', placeholder='请选择')
-              el-option(v-for='op in options', :key='op.value', :label='op.label', :value='op.value')
+              el-option(v-for='(op,index) in options', :key='index', :label='op.label', :value='op.value')
         el-col(:span='2')
           div.el-icon-delete(@click="onDelete(item, 1)" style="margin-top:30px")
     el-card.body
       .clearfix(slot='header')
         span 主要内容
-        el-button(style='float: right; padding: 3px 0', type='text'  @click="onAdd(2)") add
-      el-row(v-for='item in tbody', :key='item' :gutter='2')
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(2)") addRangeInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(2,false)") addRangeInBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(2)") addInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(2,false)") addBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onClean(2)") Clean
+      el-row(v-for='(item,index) in tbody', :key='index' :gutter='2')
         el-col(:span='2')
           div.el-icon-location-outline(@click="onPosition(item.address)" style="margin-top:30px")
         el-col(:span='8')
@@ -41,14 +49,18 @@
         el-col(:span='4')
           div 数据类型
             el-select(v-model='item.type', placeholder='请选择')
-              el-option(v-for='op in options', :key='op.value', :label='op.label', :value='op.value')
+              el-option(v-for='(op, index) in options', :key='index', :label='op.label', :value='op.value')
         el-col(:span='2')
           div.el-icon-delete(@click="onDelete(item, 2)" style="margin-top:30px")
     el-card.footer
       .clearfix(slot='header')
         span 表尾内容
-        el-button(style='float: right; padding: 3px 0', type='text'  @click="onAdd(3)") add
-      el-row(v-for='item in tfooter', :key='item' :gutter='2')
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(3)") addRangeInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAddRange(3,false)") addRangeInBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(3)") addInRight
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(3,false)") addBottom
+        el-button(style='float: right; padding: 3px 5px', type='text' @click="onClean(3)") Clean
+      el-row(v-for='(item,index) in tfooter', :key='index' :gutter='2')
         el-col(:span='2')
           div.el-icon-location-outline(@click="onPosition(item.address)" style="margin-top:30px")
         el-col(:span='8')
@@ -63,7 +75,7 @@
         el-col(:span='4')
           div 数据类型
             el-select(v-model='item.type', placeholder='请选择')
-              el-option(v-for='op in options', :key='op.value', :label='op.label', :value='op.value')
+              el-option(v-for='(op,index) in options', :key='index', :label='op.label', :value='op.value')
         el-col(:span='2')
           div.el-icon-delete(@click="onDelete(item, 3)" style="margin-top:30px")
     el-card.other
@@ -108,19 +120,14 @@
 <script>
 import axios from 'axios'
 import taskPane from './js/taskpane.js'
+
 export default {
   name: 'TaskPane',
   data(){
     return {
       DemoSpan : '',
       docName: '',
-      theader:[
-        {
-          address: 'A1',
-          type: 'text',
-          name: '当前'
-        }
-      ],
+      theader:[],
       tbody:[],
       tfooter:[],
       tother:{
@@ -145,49 +152,82 @@ export default {
     }
   },
   methods:{
-    onAdd(type) {
-      let cell = wps.EtApplication().ActiveCell
+    // 添加一个区域数据
+    // isRight 填写的value单元格在右侧相邻 否在在下面相邻
+    onAddRange(type, isRight = true) {
+      let selection = this.currentSelection()
+      console.log(selection.Count)
+      for (let index = 1; index <= selection.Count; index++) {
+        let cell =  selection.Cells.Item(index)
+        if(cell.Text) {
+          let nextCell = this.getNextCell(cell, isRight)
+          let item = {
+            name: cell.Text,
+            address: nextCell.Address(false,false),
+            type: 'text',
+            col: nextCell.Column,
+            row: nextCell.Row
+          }
+          if(item.name.indexOf('日期') != -1) {
+            item.type = 'date'
+          } else if(item.name.indexOf('图示') != -1 || item.name.indexOf('图片') != -1 ) {
+            item.type = 'image'
+          }
+          
+          if(type == 1) {
+            this.theader.push(item)
+          }  else if(type == 2) {
+            this.tbody.push(item)
+          } else if(type == 3) {
+            this.tfooter.push(item)
+          }
+        }
+      }
+    },
+    onAdd(type, isRight = true) {
+      let cell = this.currentCell()
+      let nextCell = this.getNextCell(cell, isRight)
       let item = {
         name: cell.Text,
-        address: cell.Address(false,false),
+        address: nextCell.Address(false,false),
         type: 'text',
-        col: cell.Column,
-        row: cell.Row
+        col: nextCell.Column,
+        row: nextCell.Row
       }
-      let sheet = wps.EtApplication().ActiveSheet
+      if(item.name.indexOf('日期') != -1) {
+        item.type = 'date'
+      } else if(item.name.indexOf('图示') != -1 || item.name.indexOf('图片') != -1 ) {
+        item.type = 'image'
+      }
       if(type == 1) {
-          console.log(sheet)
           this.theader.push(item)
       }  else if(type == 2) {
-          console.log(sheet)
           this.tbody.push(item)
       } else if(type == 3) {
-          console.log(sheet)
           this.tfooter.push(item)
       }
     },
     getName(obj) {
-      console.log(obj)
-      // let sheet = wps.EtApplication().ActiveSheet
-      let cell = wps.EtApplication().ActiveCell
+      let cell = this.currentCell()
       obj.name = cell.Text
-      // console.log(cell )
-      // console.log(cell.AddressLocal())
-      // console.log(cell.ApplyNames() )
-      // console.log(cell.Column)
-      // console.log(cell.Row )
-      // console.log(cell.Text)
-      // console.log(cell.Address() )
     },
     getAddress(obj) {
-      console.log(obj)
-      let cell = wps.EtApplication().ActiveCell
+      let cell = this.currentCell()
       obj.address = cell.Address(false,false)
       obj.col = cell.Column,
       obj.Row = cell.Row
     },
+    onClean(type) {
+      if(type == 1) {
+        this.theader = []
+      }  else if(type == 2) {
+          this.tbody= []
+      } else if(type == 3) {
+          this.tfooter= []
+      }
+    },
     onPosition(address) {
-      let sheet = wps.EtApplication().ActiveSheet
+      let sheet = this.currentSheet()
       sheet.Range(address).Select()
     },
     onDelete(item, type) {
@@ -236,13 +276,44 @@ export default {
       }
     },
     onSubmit() {
-      let data = {
+      let result = {
         theader: this.theader,
         tfooter: this.tfooter,
         tbody: this.tbody,
         tother: this.tother
       }
+      var data = JSON.stringify(result) 
       console.log(data)
+    },
+    et() {
+      return wps.EtApplication();
+    },
+    currentSheet() {
+      return wps.EtApplication().ActiveSheet;
+    },
+    getNextCell(cell, isRight) {
+      if(isRight) {
+        if(!cell.MergeCells) {
+          return cell.Next
+        } else {
+          let count = cell.MergeArea.Count
+          return cell.MergeArea.Item(count).Next
+        }
+      } else {
+        if(!cell.MergeCells) {
+          return this.currentSheet().Cells.Item((cell.Row + 1),cell.Column)
+        } else {
+          let count = cell.MergeArea.Count
+          let endCell = cell.MergeArea.Item(count)
+          return this.currentSheet().Cells.Item((endCell.Row + 1),endCell.Column)
+        }
+      }
+    },
+    currentCell() {
+      return wps.EtApplication().ActiveCell;
+    },
+    currentSelection() {
+      return wps.EtApplication().Selection;
     }
   },
   mounted() {
