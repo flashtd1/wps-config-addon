@@ -35,21 +35,24 @@
         el-button(style='float: right; padding: 3px 5px', type='text' @click="onAdd(2,false)") addBottom
         el-button(style='float: right; padding: 3px 5px', type='text' @click="onClean(2)") Clean
       el-row(v-for='(item,index) in tbody', :key='index' :gutter='2')
-        el-col(:span='2')
+        el-col(:span='1')
           div.el-icon-location-outline(@click="onPosition(item.address)" style="margin-top:30px")
         el-col(:span='8')
           div 名称：
             el-input(placeholder='请输入名称', v-model='item.name')
               el-button(slot='append' type="primary"  @click='getName(item)') 获取选中
-        el-col(:span='8')
+        el-col(:span='7')
           div 地址(例：'A1')：
             el-input(placeholder='请输入地址', v-model='item.address' )
               template(#append)
                 el-button( type="primary"  @click='getAddress(item)') 获取选中
-        el-col(:span='4')
+        el-col(:span='3')
           div 数据类型
             el-select(v-model='item.type', placeholder='请选择')
               el-option(v-for='(op, index) in options', :key='index', :label='op.label', :value='op.value')
+        el-col(:span='3')
+          div 数组结构
+          el-checkbox(v-model='item.is_array')
         el-col(:span='2')
           div.el-icon-delete(@click="onDelete(item, 2)" style="margin-top:30px")
     el-card.footer
@@ -92,6 +95,7 @@
         el-input(placeholder='', v-model='tother.foot_row_count')
      
     el-button(type="primary"  @click='onSubmit()') 提交数据
+    el-button(type="primary"  @click='getTest()') 获取sheet数据
     //- .divItem
     //-   | 这是一个网页，按
     //-   span(style='font-weight: bolder;') "F12"
@@ -148,6 +152,85 @@ export default {
           value: 'image',
           label: '图片'
         }
+      ],
+      test_body: [
+        {
+            name:"序号",
+            address:"A2",
+            type:"text",
+            col:1,
+            row:2
+        },
+        {
+            name:"产品图示",
+            address:"B2",
+            type:"image",
+            col:2,
+            row:2
+        },
+        {
+            name:"商品名称",
+            address:"C2",
+            type:"text",
+            col:3,
+            row:2
+        },
+        {
+            name:"型号",
+            address:"D2",
+            type:"text",
+            col:4,
+            row:2
+        },
+        {
+            name:"尺寸(W*D*H标准)",
+            address:"E2",
+            type:"text",
+            col:5,
+            row:2
+        },
+        {
+            name:"材质",
+            address:"F2",
+            type:"text",
+            col:6,
+            row:2
+        },
+        {
+            name:"颜色",
+            address:"G2",
+            type:"text",
+            col:7,
+            row:2
+        },
+        {
+            name:"数量",
+            address:"H2",
+            type:"text",
+            col:8,
+            row:2
+        },
+        {
+            name:"单位",
+            address:"I2",
+            type:"text",
+            col:9,
+            row:2
+        },
+        {
+            name:"价格",
+            address:"J2",
+            type:"text",
+            col:10,
+            row:2
+        },
+        {
+            name:"工艺标准和要求",
+            address:"K2",
+            type:"text",
+            col:11,
+            row:2
+        }
       ]
     }
   },
@@ -161,6 +244,9 @@ export default {
         let cell =  selection.Cells.Item(index)
         if(cell.Text) {
           let nextCell = this.getNextCell(cell, isRight)
+          if(type == 2) {
+            nextCell = cell
+          }
           let item = {
             name: cell.Text,
             address: nextCell.Address(false,false),
@@ -187,6 +273,9 @@ export default {
     onAdd(type, isRight = true) {
       let cell = this.currentCell()
       let nextCell = this.getNextCell(cell, isRight)
+      if(type == 2) {
+        nextCell = cell
+      }
       let item = {
         name: cell.Text,
         address: nextCell.Address(false,false),
@@ -284,6 +373,12 @@ export default {
       }
       var data = JSON.stringify(result) 
       console.log(data)
+      let fd = wps.EtApplication().FileDialog(2)
+      fd.Filters.Add("文本", "*.json; *.txt;", 2)
+      if(fd.Show() == -1){
+        let path  = fd.SelectedItems.Item(1)
+        wps.FileSystem.writeAsBinaryString (path , data)
+      }
     },
     et() {
       return wps.EtApplication();
@@ -314,6 +409,40 @@ export default {
     },
     currentSelection() {
       return wps.EtApplication().Selection;
+    },
+    getTest() {
+      let ranges = this.currentSelection()
+      console.log(ranges.Columns.Count)
+      console.log(ranges.Rows.Count)
+      let data = []
+      for (let i = 1; i <= ranges.Rows.Count; i++) {
+        let  itemData = {}
+        let add  = true
+        for (let j = 0; j < this.test_body.length; j++) {
+          let item = this.test_body[j]
+          let cell = ranges.Item(i,item.col)
+          if(cell.MergeCells) {
+            let first = cell.MergeArea.Address().split(':')[0]
+             if(j == 0) {
+              itemData = data.find(p=>p.address == first)
+              if(itemData) { 
+                add = false
+              }
+              else {
+                itemData = {}
+              }
+            }
+            itemData[item.address] = first.Value2
+          } else {
+            itemData[item.address] = cell.Value2
+          }
+          if(add) {
+            // itemData['address'] = 
+            data.push(itemData)
+          }
+          console.log(cell.MergeArea.Address(false,false))
+        }
+      }
     }
   },
   mounted() {
