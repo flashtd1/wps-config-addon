@@ -9,6 +9,8 @@
                     <button id="btnShowTaskPane" label="弹任务窗格网页" onAction="ribbon.OnAction" getEnabled="ribbon.OnGetEnabled"  getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
                     <button id="btnApiEvent" getLabel="ribbon.OnGetLabel" onAction="ribbon.OnAction" getEnabled="ribbon.OnGetEnabled"  getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
                     <button id="btnWebNotify" label="给业务系统发通知" onAction="ribbon.OnAction" enabled="true"  getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
+                    <button id="btnShowViewPane" label="制作表单页面" onAction="ribbon.OnAction" getEnabled="ribbon.OnGetEnabled"  getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
+                    <button id="btnShowConfig" label="制作表单配置" onAction="ribbon.OnAction" getEnabled="ribbon.OnGetEnabled"  getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
 				</group>
             </tab>
         </tabs>

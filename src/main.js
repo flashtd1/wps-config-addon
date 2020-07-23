@@ -20,9 +20,13 @@ const routerCfg= [
     name: '对话框',
     component:()=>import('./components/Dialog.vue')
   },{
-    path: '/taskpane', 
+    path: '/taskpane1', 
     name: '任务窗格',
     component:()=>import('./components/TaskPane.vue')
+  },{
+    path: '/taskpane', 
+    name: '页面配置窗口',
+    component:()=>import('./components/PageView.vue')
   }
 ]
 

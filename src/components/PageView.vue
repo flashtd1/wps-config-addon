@@ -19,7 +19,7 @@
           :x="item.x"
           :y="item.y"
           :w="item.w"
-          :h="item.h"
+          :h="item.h" 
           :i="item.i"
           :key="item.i")
           div
@@ -28,7 +28,7 @@
               el-option(v-for='(op,index) in options', :key='index', :label='op.label', :value='op.value')
           div
             | 名称： 
-            span {{item.value}}
+            span {{item.name}}
           div
             | span: 
             | {{item.w}}
@@ -50,18 +50,18 @@ export default {
       col_num:24,
       row_height: 60,
       margin: [10,10],
-      span: 8,
+      span: 24,
       options:[
         {
-          value: 'text',
+          value: 'el-input',
           label: '单行文本'
         },
         {
-          value: 'date',
+          value: 'el-date-picker',
           label: '时间'
         },
         {
-          value: 'image',
+          value: 'Uploader',
           label: '图片'
         },
          {
@@ -105,16 +105,16 @@ export default {
           })
           let maxY = Math.max(...ys)
           let temp = {
-            x: 1,
+            x: 0,
             y: maxY,
             w:this.span,
             h:2,
             i: this.layout.length,
-            value: cell.Text,
-            type: 'text',
+            name: cell.Text,
+            type: 'el-input',
             key: cell.Address(false,false)
           }
-          // if(temp.value.indexOf('日期') != -1) {
+          // if(temp.name.indexOf('日期') != -1) {
           //   temp.type = 'date'
           // } else if(temp.name.indexOf('图示') != -1 || temp.name.indexOf('图片') != -1 ) {
           //   temp.type = 'image'
@@ -137,7 +137,7 @@ export default {
       //   w:2,
       //   h:2,
       //   i: this.layout.length,
-      //   value: cell.Value2
+      //   name: cell.Value2
       // }
       // this.layout.push(temp)
     },
@@ -145,7 +145,22 @@ export default {
 
     },
     onSubmit() {
-      let data = JSON.stringify(this.layout)
+      let result = this.layout.map( (item) => {
+        let temp = {
+          name: item.name,
+          component: item.type,
+          span: item.w,
+          key: item.key
+        }
+        if(item.type == 'mtext') {
+          temp.component = 'el-input'
+          temp.attrs = {
+            type: 'textarea',
+          }
+        }
+        return temp
+      })
+      let data = JSON.stringify(result)
       console.log(data) 
 
     },
