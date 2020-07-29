@@ -84,6 +84,44 @@ function OnAction(control) {
                 wps.OAAssist.WebNotify("这行内容由wps加载项主动送达给业务系统，可以任意自定义, 比如时间值:" + timeStr)
             }
             break
+        case "btnShowViewPane":
+            {
+                let tsId = wps.PluginStorage.getItem("taskpane_id1")
+                let tsId2 = wps.PluginStorage.getItem("taskpane_id2")
+                if(tsId2) {
+                    let tskpane = wps.GetTaskPane(tsId2)
+                    tskpane.Visible = !tskpane.Visible
+                }
+                if (!tsId) {
+                    let tskpane = wps.CreateTaskPane(Util.GetUrlPath() + "taskpane1")
+                    let id = tskpane.ID
+                    wps.PluginStorage.setItem("taskpane_id1", id)
+                    tskpane.Visible = true
+                } else {
+                    let tskpane = wps.GetTaskPane(tsId)
+                    tskpane.Visible = !tskpane.Visible
+                }
+            }
+            break
+        case "btnShowConfig":
+            {
+                let tsId = wps.PluginStorage.getItem("taskpane_id2")
+                let tsId1 = wps.PluginStorage.getItem("taskpane_id1")
+                if(tsId1) {
+                    let tskpane = wps.GetTaskPane(tsId1)
+                    tskpane.Visible = !tskpane.Visible
+                }
+                if (!tsId) {
+                    let tskpane = wps.CreateTaskPane(Util.GetUrlPath() + "taskpane")
+                    let id = tskpane.ID
+                    wps.PluginStorage.setItem("taskpane_id2", id)
+                    tskpane.Visible = true
+                } else {
+                    let tskpane = wps.GetTaskPane(tsId)
+                    tskpane.Visible = !tskpane.Visible
+                }
+            }
+            break
         default:
             break
     }
