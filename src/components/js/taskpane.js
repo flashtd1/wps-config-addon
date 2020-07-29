@@ -45,9 +45,21 @@ function onbuttonclick(idStr)
             }
             return doc.Name
         }
+        case "getUsedRange": {
+            let doc = wps.EtApplication().ActiveSheet.UsedRange
+            doc.Select()
+            // return doc
+        }
     }
 }
 
+const initSelectionChange = (fn) => {
+    console.log(wps.EtApplication().ActiveSheet.Drawings())
+    fn(wps.EtApplication().ActiveSheet, wps.EtApplication().ActiveCell)
+    wps.ApiEvent.AddApiEventListener('SheetSelectionChange', fn)
+}
+
 export default{
-    onbuttonclick
+    onbuttonclick,
+    initSelectionChange
 }

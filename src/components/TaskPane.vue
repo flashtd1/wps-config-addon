@@ -15,9 +15,12 @@
             <button style="margin:3px;" @click="onbuttonclick('hideTaskPane')">隐藏TaskPane</button>
             <button style="margin:3px;" @click="onbuttonclick('addString')">文档开头添加字符串</button>
             <button style="margin:3px;" @click="onDocNameClick()">取文件名</button>
+            <button style="margin:3px;" @click="onbuttonclick('getUsedRange')">获取使用范围</button>
         </div>
         <hr>
         <div class="divItem">文档文件名为：<span>{{docName}}</span></div>
+        <div class="divItem">当前选中的单元格为:<span>{{selectedCell}}</span></div>
+        <div class="divItem">当前选中的单元格为:<span>{{selectedCellLocal}}</span></div>
     </div>
 </template>
 
@@ -29,7 +32,9 @@ export default {
   data(){
       return {
           DemoSpan : '',
-          docName: ''
+          docName: '',
+          selectedCell: '',
+          selectedCellLocal: ''
       }
   },
   methods:{
@@ -38,12 +43,18 @@ export default {
       },
       onDocNameClick(){
           this.docName = taskPane.onbuttonclick('getDocName')
+      },
+      onSelectionChange(worksheet, range) {
+        console.log(worksheet, range)
+        this.selectedCell = range.Address()
+        this.selectedCellLocal = range.AddressLocal()
       }
   },
   mounted() {
       axios.get('/.debugTemp/NotifyDemoUrl').then((res) => {
           this.DemoSpan = res.data;
       });
+      taskPane.initSelectionChange(this.onSelectionChange)
   }
 }
 </script>
