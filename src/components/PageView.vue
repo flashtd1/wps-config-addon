@@ -1,9 +1,16 @@
 <template lang='pug'>
   div
-    el-button( type="primary" @click="onAdd(3,false)" style="margin-bottom:20px;") 添加选中元素
+    el-button( type="primary" @click="setHeader()" style="margin-bottom:20px;") 添加表头
+    el-button( type="primary" @click="onAdd()" style="margin-bottom:20px;") 添加选中元素
     el-button( type="primary" @click="layout=[]" style="margin-bottom:20px;") 清空
     el-button( type="primary" @click="onDelete" style="margin-bottom:20px;") 删除选中
     el-button( type="primary" @click="onSubmit" style="margin-bottom:20px;") 生成
+    div
+      | 表头
+      pre {{header}}
+    div
+      | 结果
+      el-input(v-model="result" type="textarea" :row="5")
     grid-layout(
       :layout.sync="layout"
       :col-num="col_num"
@@ -23,18 +30,18 @@
           :i="item.i"
           :key="item.i")
           div
-            | 组件： 
-            el-select(v-model='item.type', placeholder='请选择' style="width:100px;")
-              el-option(v-for='(op,index) in options', :key='index', :label='op.label', :value='op.value')
-          div
             | 名称： 
             span {{item.name}}
+          div 
+            span
+              | key： 
+              el-input(v-model="item.key" size="mini" placeholder="请输入内容" style="width:100px;")
+            span
+              | 组件
+              el-input(v-model="item.component" size="mini" placeholder="请输入内容" style="width:100px;")
           div
             | span: 
-            | {{item.w}}
-          div 
-            | key： 
-            el-input(v-model="item.key" placeholder="请输入内容" style="width:100px;")
+            el-input(v-model="item.w" size="mini" placeholder="请输入内容" style="width:100px;")
 </template>
 
 <script>
@@ -47,122 +54,108 @@ export default {
   name: 'PageViews',
   data(){
     return {
+      result: '',
       col_num:24,
       row_height: 60,
       margin: [10,10],
       span: 24,
-      options:[
-        {
-          value: 'el-input',
-          label: '单行文本'
-        },
-        {
-          value: 'el-date-picker',
-          label: '时间'
-        },
-        {
-          value: 'Uploader',
-          label: '图片'
-        },
-         {
-          value: 'mtext',
-          label: '多行文本'
-        },
-      ],
+      header: [],
       layout: [
       //  {"x":0,"y":0,"w":2,"h":2,"i":"0"},
         // {"x":3,"y":0,"w":2,"h":2,"i":"1"},
-        // {"x":4,"y":0,"w":2,"h":5,"i":"2"},
-        // {"x":6,"y":0,"w":2,"h":3,"i":"3"},
-        // {"x":8,"y":0,"w":2,"h":3,"i":"4"},
-        // {"x":10,"y":0,"w":2,"h":3,"i":"5"},
-        // {"x":0,"y":5,"w":2,"h":5,"i":"6"},
-        // {"x":2,"y":5,"w":2,"h":5,"i":"7"},
-        // {"x":4,"y":5,"w":2,"h":5,"i":"8"},
-        // {"x":6,"y":3,"w":2,"h":4,"i":"9"},
-        // {"x":8,"y":4,"w":2,"h":4,"i":"10"},
-        // {"x":10,"y":4,"w":2,"h":4,"i":"11"},
-        // {"x":0,"y":10,"w":2,"h":5,"i":"12"},
-        // {"x":2,"y":10,"w":2,"h":5,"i":"13"},
-        // {"x":4,"y":8,"w":2,"h":4,"i":"14"},
-        // {"x":6,"y":8,"w":2,"h":4,"i":"15"},
-        // {"x":8,"y":10,"w":2,"h":5,"i":"16"},
-        // {"x":10,"y":4,"w":2,"h":2,"i":"17"},
-        // {"x":0,"y":9,"w":2,"h":3,"i":"18"},
-        // {"x":2,"y":6,"w":2,"h":2,"i":"19"}
       ]
     }
   },
   methods:{
+    setHeader () {
+      this.header = []
+      let selection = this.currentSelection()
+      for (let index = 0; index < selection.Count; index++) {
+        let prop = {
+          key: selection.Cells.Item(index + 1).Text,
+          column: index
+        }
+        this.header.push(prop)
+      }
+    },
     onAdd() {
       let selection = this.currentSelection()
-      console.log(selection.Count)
+      let row = 0
+      let xSum = 0
+      let spanColumn = this.header.find(h => h.key == 'span')
       for (let index = 1; index <= selection.Count; index++) {
         let cell =  selection.Cells.Item(index)
         if(cell.Text) {
-          let ys =  this.layout.map(({y})=>{
-            return y
-          })
-          let maxY = Math.max(...ys)
-          let temp = {
-            x: 0,
-            y: maxY,
-            w:this.span,
-            h:2,
-            i: this.layout.length,
-            name: cell.Text,
-            type: 'el-input',
-            key: cell.Address(false,false)
+          // 计算x的位置，如果超出一行大小，换行，x重置
+          let span = spanColumn ? parseInt(cell.Offset(0, spanColumn.column).Text) : this.span
+          if (xSum + span > this.span) {
+            row++
+            xSum = 0
           }
-          // if(temp.name.indexOf('日期') != -1) {
-          //   temp.type = 'date'
-          // } else if(temp.name.indexOf('图示') != -1 || temp.name.indexOf('图片') != -1 ) {
-          //   temp.type = 'image'
-          // }
+          let temp = {
+            x: xSum,
+            y: row,
+            w: span,
+            h:2,
+            i: this.layout.length
+          }
+          xSum += span
+          let extendProps = this.header.reduce((result, current) => {
+            result[current.key] = cell.Offset(0, current.column).Text
+            return result
+          }, {})
+          Object.assign(temp, extendProps)
           this.layout.push(temp)
         }
       }
-      // let cell = this.currentCell()
-      // let address = cell.Address(false,false)
-      // console.log(address,cell.Value2)
-      // let ys =  this.layout.map(({y})=>{
-      //   return y
-      // })
-
-      // let maxY = Math.max(...ys)
-      // console.log(maxY)
-      // let temp = {
-      //   x: 0,
-      //   y: maxY,
-      //   w:2,
-      //   h:2,
-      //   i: this.layout.length,
-      //   name: cell.Value2
-      // }
-      // this.layout.push(temp)
     },
     onDelete() {
 
     },
     onSubmit() {
-      let result = this.layout.map( (item) => {
+      let result = this.layout.map((item) => {
         let temp = {
           name: item.name,
-          component: item.type,
-          span: item.w,
-          key: item.key
+          component: item.component,
+          span: item.span,
+          key: item.key,
         }
-        if(item.type == 'mtext') {
-          temp.component = 'el-input'
-          temp.attrs = {
-            type: 'textarea',
-          }
+        // item中带有:的key，需要层级创建对象，在最后一级才进行赋值
+        // 先找出所有带：的属性
+        let attrProps = Object.keys(item).filter(i => i.includes(':'))
+        // 赋值
+        // 先构造temp的层级，并在正确的层级上赋值
+        for (let i = 0; i < attrProps.length; i++) {
+          let levels = attrProps[i].split(':')
+          levels.reduce((result, current, index) => {
+              if (!result[current]) {
+                  if (index == levels.length - 1) {
+                    if (item[attrProps[i]]) {
+                      result[current] = item[attrProps[i]]
+                    }
+                  } else {
+                    result[current] = {}
+                  }
+                  return result[current]
+              }
+              return result[current]
+          }, temp)
         }
+        // 旧逻辑
+        // let attrProps = Object.keys(item).filter(i => i.startsWith('attr_'))
+        // attrProps.map((prop) => {
+        //   let key = prop.split('attr_')[1]
+        //   if (item[prop]) {
+        //     Object.assign(temp.attrs, {
+        //       [key]: item[prop]
+        //     })
+        //   }
+        // })
         return temp
       })
       let data = JSON.stringify(result)
       console.log(data) 
-
+      this.result = data
     },
     et() {
       return wps.EtApplication();
@@ -193,7 +186,7 @@ export default {
     },
     currentSelection() {
       return wps.EtApplication().Selection;
-    },
+    }
   },
   mounted() {
    

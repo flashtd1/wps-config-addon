@@ -32,7 +32,9 @@ const routerCfg= [
 
 new Vue({
   render: h => h(App),
-  router: new VueRouter({routes:routerCfg}),
+  router: new VueRouter({
+    routes: routerCfg
+  }),
   created: function () {
     //
   }

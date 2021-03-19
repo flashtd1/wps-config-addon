@@ -235,12 +235,7 @@ export default {
     }
   },
   methods:{
-    onbuttonclick(id){
-        return taskPane.onbuttonclick(id)
-    },
-    onDocNameClick(){
-        this.docName = taskPane.onbuttonclick('getDocName')
-    },
+    
     onSelectionChange(worksheet, range) {
       console.log(worksheet, range)
       this.selectedCell = range.Address()
