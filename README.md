@@ -1,26 +1,29 @@
-# et_vue
+# wps版配置生成工具
+> 通过wps表格生成标准json配置，常用于自定义搭建配置界面生成
 
-## Project setup
+## 了解
+### 效果
+
+### 优势
+### 安装体验
+
+## 二次开发
+## 项目安装
+将项目克隆至本地
 ```
 npm install
 ```
-
-### Compiles and hot-reloads for development
+### 开发
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 构建
 ```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
+npx wpsjs build
 ```
 
-### Customize configuration
+### 其他配置参考vue
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### wps加载项开发说明
