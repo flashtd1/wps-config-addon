@@ -141,16 +141,6 @@ export default {
               return result[current]
           }, temp)
         }
-        // 旧逻辑
-        // let attrProps = Object.keys(item).filter(i => i.startsWith('attr_'))
-        // attrProps.map((prop) => {
-        //   let key = prop.split('attr_')[1]
-        //   if (item[prop]) {
-        //     Object.assign(temp.attrs, {
-        //       [key]: item[prop]
-        //     })
-        //   }
-        // })
         return temp
       })
       let data = JSON.stringify(result)
