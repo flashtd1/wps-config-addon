@@ -1,5 +1,5 @@
 {
-	"name": "hello-wps",
+	"name": "wps-config-addon",
 	"addonType": "et",
 	"version": "1.0.0",
 	"private": true,
