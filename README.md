@@ -3,10 +3,24 @@
 
 ## 了解
 ### 效果
-
+![演示](./wps-table-addon.gif)
 ### 优势
+传统企业本身利用excel表格较多，方便直接从文件转录配置文件
 ### 安装体验
+找到WPS的安装目录，在目录中找oem.ini
+文件内容做修改如下
+```ini
+[Support]
+JsApiPlugin=true
+JsApiShowWebDebugger=true
 
+[Server]
+JSPluginsServer=wps-config-addon.flashtd1.com
+```
+* Support部分，JsApiPlugin是允许使用插件
+* Support部分，JsApiShowWebDebugger是开启插件的调试窗口，如果是发布就不要配置这个了
+* Server部分，JSPluginsServer是配置插件的下载地址，jsplugins.xml文件要上传到这个地址中，本案例是wps-config-addon.flashtd1.com
+* 
 ## 二次开发
 ## 项目安装
 将项目克隆至本地
@@ -15,7 +29,7 @@ npm install
 ```
 ### 开发
 ```
-npm run serve
+npx wpsjs debug
 ```
 
 ### 构建
@@ -35,14 +49,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 JsApiPlugin=true
 JsApiShowWebDebugger=true
 ```
-
-### 调试
-在项目地址执行`npx wpsjs debug`开启调试
-
 ### 发布
 在项目地址执行`npx wpsjs build`编译代码
 按照提示将生成的wps-addon-build目录部署到服务器
-剩余步骤下次再写
-
-## 演示demo
-![演示](./wps-table-addon.gif)

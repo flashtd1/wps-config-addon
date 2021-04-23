@@ -1,4 +1,13 @@
+# 依赖
 node_modules
+
+# 生成文件
 wps-addon-build
 wps-addon-publish
 dist
+
+# 本地配置
+local_env.json
+
+# 临时文件
+public/.debugTemp
