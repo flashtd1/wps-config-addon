@@ -15,7 +15,7 @@ JsApiPlugin=true
 JsApiShowWebDebugger=true
 
 [Server]
-JSPluginsServer=wps-config-addon.flashtd1.com
+JSPluginsServer=http://wps-config-addon.flashtd1.com
 ```
 * Support部分，JsApiPlugin是允许使用插件
 * Support部分，JsApiShowWebDebugger是开启插件的调试窗口，如果是发布就不要配置这个了
