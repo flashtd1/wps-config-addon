@@ -43,3 +43,6 @@ JsApiShowWebDebugger=true
 在项目地址执行`npx wpsjs build`编译代码
 按照提示将生成的wps-addon-build目录部署到服务器
 剩余步骤下次再写
+
+## 演示demo
+![演示](./wps-table-addon.gif)
